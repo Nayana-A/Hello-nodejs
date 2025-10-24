@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aks-test-deploy
+  labels:
+    app: aks-test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aks-test
+  template:
+    metadata:
+      labels:
+        app: aks-test
+    spec:
+      containers:- 
+    name: aks-test-container
+  image: myzomato.azurecr.io/aks-test-app
+  ports:
+  - containerPort: 3000
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: aks-test-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: aks-test
+  ports:
+  - port: 80
+    targetPort: 3000
