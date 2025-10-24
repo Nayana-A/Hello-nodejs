@@ -15,7 +15,7 @@ spec:
         app: aks-test
     spec:
       containers:- 
-    name: aks-test-container
+    name: myzomato
   image: myzomato.azurecr.io/aks-test-app
   ports:
   - containerPort: 3000
