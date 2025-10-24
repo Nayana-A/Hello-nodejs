@@ -16,6 +16,13 @@ stages:
   - job: Deploy
     displayName: 'Deploy Test App'
     steps:
+    # Step 1: Show managed agent public IP
+    - script: |
+        echo "Detecting outbound public IP..."
+        curl -s https://ifconfig.me
+      displayName: "Show outbound public IP"
+
+    # Step 2: Deploy to AKS
     - task: Kubernetes@1
       displayName: 'Deploy to AKS'
       inputs:
