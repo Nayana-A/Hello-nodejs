@@ -53,6 +53,9 @@ stages:
           containerRegistry: $(dockerRegistryServiceConnection)
           tags: |
             $(tag)
+        env:
+          DOCKER_CLI_AS_ROOT: "true"
+          
 
 - stage: Deploy
   displayName: Deploy to AKS
