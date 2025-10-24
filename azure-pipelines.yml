@@ -1,38 +1,29 @@
-# Deploy to Azure Kubernetes Service
-# Build and push image to Azure Container Registry; Deploy to Azure Kubernetes Service
-# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
-
-trigger:
+trigger: 
 - main
 
-resources:
-- repo: self
-
 variables:
-
-  # Container registry service connection established during pipeline creation
-  dockerRegistryServiceConnection: 'cbeaaeb4-cb00-4553-ab47-afaf627fd9a8'
-  imageRepository: 'nayanaahellonodejs'
-  containerRegistry: 'myzomato.azurecr.io'
-  dockerfilePath: '**/Dockerfile'
+  dockerRegistryServiceConnection: '467aebc6-c2d7-48d1-af79-d79a67c80398'
+  imageRepository: 'aks-test-app'
+  containerRegistry: 'myzomato'
+  dockerfilePath: 'Dockerfile'
   tag: '$(Build.BuildId)'
-  imagePullSecret: 'myzomato11538e4b-auth'
 
-  # Agent VM image name
-  vmImageName: 'ubuntu-latest'
-
+  azureSubscription: 'default'
+  azureResourceGroup: 'Nayana'
+  kubernetesCluster: 'mangedevopsagent'
+  namespace: 'prod'
 
 stages:
 - stage: Build
-  displayName: Build stage
+  displayName: Build and Push Image
   jobs:
   - job: Build
-    displayName: Build
+    displayName: Build Job
     pool:
-      vmImage: $(vmImageName)
+      name: magedpool
     steps:
     - task: Docker@2
-      displayName: Build and push an image to container registry
+      displayName: Build and Push Docker image
       inputs:
         command: buildAndPush
         repository: $(imageRepository)
@@ -41,39 +32,38 @@ stages:
         tags: |
           $(tag)
 
-    - upload: manifests
-      artifact: manifests
-
 - stage: Deploy
-  displayName: Deploy stage
+  displayName: Deploy to AKS
   dependsOn: Build
-
   jobs:
   - deployment: Deploy
-    displayName: Deploy
+    displayName: Deploy Job
+    environment: 'aks-test'
     pool:
-      vmImage: $(vmImageName)
-    environment: 'NayanaAHellonodejs.prod'
+      name: magedpool
     strategy:
       runOnce:
         deploy:
           steps:
-          - task: KubernetesManifest@0
-            displayName: Create imagePullSecret
+          - task: Kubernetes@1
+            displayName: Apply Deployment YAML
             inputs:
-              action: createSecret
-              secretName: $(imagePullSecret)
-              dockerRegistryEndpoint: $(dockerRegistryServiceConnection)
+              connectionType: 'Azure Resource Manager'
+              azureSubscription: $(azureSubscription)
+              azureResourceGroup: $(azureResourceGroup)
+              kubernetesCluster: $(kubernetesCluster)
+              namespace: $(namespace)
+              command: 'apply'
+              useConfigurationFile: true
+              configuration: 'manifests/deployment.yaml'
 
-          - task: KubernetesManifest@0
-            displayName: Deploy to Kubernetes cluster
+          - task: Kubernetes@1
+            displayName: Update Image Tag
             inputs:
-              action: deploy
-              manifests: |
-                $(Pipeline.Workspace)/manifests/deployment.yml
-                $(Pipeline.Workspace)/manifests/service.yml
-              imagePullSecrets: |
-                $(imagePullSecret)
-              containers: |
-                $(containerRegistry)/$(imageRepository):$(tag)
-
+              connectionType: 'Azure Resource Manager'
+              azureSubscription: $(azureSubscription)
+              azureResourceGroup: $(azureResourceGroup)
+              kubernetesCluster: $(kubernetesCluster)
+              namespace: $(namespace)
+              command: 'set'
+              arguments: "image deployment/aks-test-deploy aks-test-container=$(containerRegistry)/$(imageRepository):$(tag)"
