@@ -33,15 +33,14 @@ stages:
           sudo apt-get install -y docker-ce docker-ce-cli containerd.io
           sudo systemctl start docker
           sudo systemctl enable docker
-          docker --version
+          sudo docker --version
         displayName: Install Docker
 
-      # Step 2: Fix Docker permissions
+      # Step 2: Add user to docker group (no newgrp)
       - script: |
           echo "Adding current user to docker group..."
           sudo usermod -aG docker $(whoami)
-          newgrp docker
-          docker info
+          sudo docker info
         displayName: Fix Docker permissions
 
       # Step 3: Build & Push Docker Image
