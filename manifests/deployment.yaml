@@ -1,41 +1,45 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: aks-test-deploy
-  labels:
-    app: aks-test
+  name: test-nginx
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: aks-test
+      app: test-nginx
   template:
     metadata:
       labels:
-        app: aks-test
+        app: test-nginx
     spec:
-      containers:- 
-    name: myzomato
-  image: myzomato.azurecr.io/aks-test-app
-  ports:
-  - containerPort: 3000
-  resources:
+      containers:
+      - name: nginx
+        image: nginx:latest   # public image, no build needed
+        ports:
+        - containerPort: 80
+          resources:
+
     requests:
+
       cpu: 100m
+
       memory: 128Mi
+
     limits:
+
       cpu: 250m
+
       memory: 256Mi
 
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: aks-test-service
+  name: test-nginx-svc
 spec:
   type: LoadBalancer
   selector:
-    app: aks-test
+    app: test-nginx
   ports:
-  - port: 80
-    targetPort: 3000
+    - port: 80
+      targetPort: 80
