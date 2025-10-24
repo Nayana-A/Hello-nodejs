@@ -2,7 +2,7 @@ trigger:
 - main  # your branch
 
 pool:
-  vmImage: 'ubuntu-latest'
+  name: 'magedpool'   # replace with your managed agent pool name
 
 variables:
   azureSubscription: 'default'       # DevOps service connection
