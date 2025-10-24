@@ -7,7 +7,7 @@ pool:
 variables:
   azureSubscription: 'default'       # DevOps service connection
   aksResourceGroup: 'nayana'
-  aksCluster: 'managedevopsagent'
+  aksCluster: 'mangedevopsagent'
 
 stages:
 - stage: Deploy
