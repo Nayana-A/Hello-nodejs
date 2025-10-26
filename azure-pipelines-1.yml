@@ -2,7 +2,7 @@ trigger:
 - main  # your branch
  
 pool:
-  name: 'magedpool'   # replace with your managed agent pool name
+  name: 'devopsagent-1'   # replace with your managed agent pool name
  
 variables:
   azureSubscription: 'ARM-conn'       # DevOps service connection
