@@ -2,12 +2,12 @@ trigger:
 - main  # your branch
 
 pool:
-  name: 'magedpool'   # replace with your managed agent pool name
+  name: 'devopsagent-1'   # replace with your managed agent pool name
 
 variables:
   azureSubscription: 'default'       # DevOps service connection
-  aksResourceGroup: 'nayana'
-  aksCluster: 'mangedevopsagent'
+  aksResourceGroup: 'ARM-conn'
+  aksCluster: 'aks-managed-dev'
 
 stages:
 - stage: Deploy
